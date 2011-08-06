@@ -1,0 +1,84 @@
+; Changes to length counter halt occur after clocking length, not before.
+
+	.include "prefix_apu.a"
+
+; Selection of which channel to use
+chan = $4000
+mask = $01
+halt = $30
+unhalt = $10
+
+test_name:
+	.db "APU LENGTH HALT TIMING",0
+	
+begin_test:
+	sta result
+	jsr sync_apu
+	lda #$18        ; length = 2
+	sta chan + 3
+	lda #unhalt
+	sta chan
+	lda #$C0        ; begin mode 1 and clock length
+	sta $4017
+	rts
+
+reset:
+	jsr setup_apu
+	lda #mask
+	sta $4015
+	
+	lda #2;) Length shouldn't be clocked when halted at 16628
+	jsr begin_test
+	lda #unhalt
+	sta chan
+	ldy #17         ; 16610 delay
+	lda #194                
+	jsr delay_ya1
+	lda #halt
+	sta chan        ; at 16628
+	jsr should_be_playing
+	
+	lda #3;) Length should be clocked when halted at 16629
+	jsr begin_test
+	lda #unhalt
+	sta chan
+	ldy #17         ; 16611 delay
+	lda #194                
+	jsr delay_ya2
+	lda #halt
+	sta chan        ; at 16629
+	jsr should_be_silent
+	
+	lda #4;) Length should be clocked when unhalted at 16628
+	jsr begin_test
+	lda #halt
+	sta chan
+	ldy #17         ; 16610 delay
+	lda #194                
+	jsr delay_ya1
+	lda #unhalt
+	sta chan        ; at 16628
+	jsr should_be_silent
+	
+	lda #5;) Length shouldn't be clocked when unhalted at 16629
+	jsr begin_test
+	lda #halt
+	sta chan
+	ldy #17         ; 16611 delay
+	lda #194                
+	jsr delay_ya2
+	lda #unhalt
+	sta chan        ; at 16629
+	jsr should_be_playing
+	
+	jmp tests_passed
+
+should_be_playing:
+	lda $4015
+	and #mask
+	jmp error_if_eq
+
+should_be_silent:
+	lda $4015
+	and #mask
+	jmp error_if_ne

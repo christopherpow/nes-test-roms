@@ -1,0 +1,158 @@
+; Utilities for writing test ROMs
+
+ram_res	test_code,1 ; code of current test
+ram_res	test_name,2 ; address of name of current test, or 0 of none
+
+
+; Reports that all tests passed
+tests_passed:
+.if !BUILD_MULTI
+	jsr print_filename
+	print_str "Passed"
+.endif
+	lda #0
+	jmp exit
+
+
+; Reports test failure
+test_failed:
+	lda test_code
+	
+	; Treat 0 as 1, in case it wasn't ever set
+	bne :+
+	lda #1
+	sta test_code
+:	
+	; If code >= 2, print name
+	cmp #2
+	blt :+
+	lda test_name+1
+	beq :+
+	sta addr+1
+	lda test_name
+	sta addr
+	jsr print_newline
+	jsr print_str_addr
+	jsr print_newline
+:	
+.if !BUILD_MULTI
+	jsr print_filename
+.endif
+	
+	; End program
+	lda test_code
+	jmp exit
+
+
+; Sets current test code and optionally name. Also resets
+; checksum.
+.macro set_test code,name
+	jsr set_test_
+	.byte code
+.if (!BUILD_DEVCART) || .blank(name)
+	.addr 0
+.else
+	str_addr name
+.endif
+.endmacro
+
+set_test_:
+	; Get return addr
+	sta test_code
+	pla
+	sta addr
+	pla
+	sta addr+1
+	lda test_code
+	
+	pha
+	tya
+	pha
+	
+	jsr reset_crc
+	
+	ldy #1
+	
+	; Copy code
+	lda (addr),y
+	sta test_code
+	iny
+	
+	; Get addr of string
+	lda (addr),y
+	sta test_name
+	iny
+	lda (addr),y
+	sta test_name+1
+	
+	lda #3
+	; FALL THROUGH
+
+	; Restore Y and A, then jump to addr+A+1
+jmp_adj_addr:
+	; Increment return addr
+	sec
+	adc addr
+	sta addr
+	bcc :+
+	inc addr+1
+:	
+	pla
+	tya
+	pla
+	jmp (addr)
+
+
+; If checksum doesn't match expected, reports failed test
+; Preserved: A, X, Y
+.macro check_crc expected
+.if expected
+	jsr check_crc_
+	.dword expected
+.else
+	; print checksum if you pass 0
+	jsr print_newline
+	jsr print_crc
+	jsr print_newline
+.endif
+.endmacro
+
+
+; Compares CRC at addr to current CRC.
+; A and Z reflect comparison.
+; Preserved: X
+cmp_crc_addr:
+	; Compare with checksum
+	ldy #0
+:	lda checksum,y
+	eor #$FF
+	eor (addr),y
+	bne @wrong
+	iny
+	cpy #4
+	bne :-
+@wrong:	rts
+
+check_crc_:
+	; Get return addr
+	sta temp
+	pla
+	sta addr
+	pla
+	sta addr+1
+	jsr inc_addr
+	lda temp
+	
+	pha
+	tya
+	pha
+	
+	jsr cmp_crc_addr
+	bne :+
+	lda #3
+	jmp jmp_adj_addr
+	
+:	jsr print_newline
+	jsr print_crc
+	jsr print_newline
+	jmp test_failed

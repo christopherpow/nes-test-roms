@@ -1,0 +1,103 @@
+; Tests PAL APU length counter timing in mode 0.
+
+	.include "prefix_apu.a"
+
+test_name:
+	.db "APU MODE 0 LENGTH TIMING",0
+	
+reset:
+	jsr setup_apu
+	
+	lda #2;) First length is clocked too soon
+	sta result
+	jsr sync_apu
+	lda #$18        ; load length with 2
+	sta $4003
+	lda #$C0        ; clock length
+	sta $4017
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #48         ; 16625 delay
+	lda #68         
+	jsr delay_ya0
+	lda $4015       ; read at 16629
+	and #$01
+	jsr error_if_eq
+	
+	lda #3;) First length is clocked too late
+	sta result
+	jsr sync_apu
+	lda #$18        ; load length with 2
+	sta $4003
+	lda #$c0        ; clock length
+	sta $4017
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #48         ; 16626 delay
+	lda #68         
+	jsr delay_ya1
+	lda $4015       ; read at 16630
+	and #$01
+	jsr error_if_ne
+	
+	lda #4;) Second length is clocked too soon
+	sta result
+	jsr sync_apu
+	lda #$18        ; load length with 2
+	sta $4003
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #29         ; 33251 delay
+	lda #228                
+	jsr delay_ya0
+	lda $4015       ; read at 33255
+	and #$01
+	jsr error_if_eq
+	
+	lda #5;) Second length is clocked too late
+	sta result
+	jsr sync_apu
+	lda #$18        ; load length with 2
+	sta $4003
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #29         ; 33252 delay
+	lda #228                
+	jsr delay_ya1
+	lda $4015       ; read at 33256
+	and #$01
+	jsr error_if_ne
+	
+	lda #6;) Third length is clocked too soon
+	sta result
+	jsr sync_apu
+	lda #$28        ; load length with 4
+	sta $4003
+	lda #$c0        ; clock length
+	sta $4017
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #107        ; 49879 delay
+	lda #92         
+	jsr delay_ya0
+	lda $4015       ; read at 49883
+	and #$01
+	jsr error_if_eq
+	
+	lda #7;) Third length is clocked too late
+	sta result
+	jsr sync_apu
+	lda #$28        ; load length with 4
+	sta $4003
+	lda #$c0        ; clock length
+	sta $4017
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #107        ; 49880 delay
+	lda #92         
+	jsr delay_ya1
+	lda $4015       ; read at 49884
+	and #$01
+	jsr error_if_ne
+	
+	jmp tests_passed

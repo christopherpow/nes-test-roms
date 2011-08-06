@@ -1,0 +1,19 @@
+; Synchronize APU divide-by-two so that an sta $4017 will
+; start the frame counter without an extra clock delay.
+; Takes 16 msec to execute.
+sync_apu:
+      sei
+      lda   #$40        ; clear irq flag
+      sta   $4017
+      lda   #$00        ; mode 0, frame irq enabled
+      sta   $4017
+      ldy   #62         ; 33251 delay
+      lda   #106        
+      jsr   delay_ya2
+      lda   $4015
+      and   #$40
+      bne   +           ; delay extra clock if odd jitter
+:     lda   #$40        ; clear irq flag
+      sta   $4017
+      rts
+      .code

@@ -1,0 +1,81 @@
+; Tests jitter where write to $4017 is delayed by one
+; clock if it's on an odd clock.
+	.include "prefix_apu.a"
+
+jitter = 1
+
+; remove indented delays for NTSC timing
+
+test_name:
+	.db "APU CLOCK JITTER",0
+	
+reset:
+	jsr setup_apu
+	
+	lda #2;) Frame irq is set too soon
+	sta result
+	lda #$40        ; clear frame irq flag
+	sta $4017
+	lda #$00        ; begin mode 0, frame irq enabled
+	sta $4017
+	ldy #48         ; 29826 delay
+	lda #123                
+	jsr delay_ya1
+	 ldy #26        ; 3424 delay
+	 lda #25                
+	 jsr delay_ya1
+	lda $4015       ; read at 33253
+	and #$40
+	jsr error_if_ne
+	
+	lda #3;) Frame irq is set too late
+	sta result
+	lda #$40        ; clear frame irq flag
+	sta $4017
+	lda #$00        ; begin mode 0, frame irq enabled
+	sta $4017
+	ldy #48         ; 29828 delay
+	lda #123                
+	jsr delay_ya3
+	 ldy #26        ; 3424 delay
+	 lda #25                
+	 jsr delay_ya1
+	lda $4015       ; read at 33255
+	and #$40
+	jsr error_if_eq
+	
+	lda #4;) Even jitter not handled properly
+	sta result
+	jsr get_jitter
+	sta <jitter
+	sta <jitter     ; keep on even clocks
+	jsr get_jitter
+	cmp <jitter
+	jsr error_if_ne
+	
+	lda #5;) Odd jitter not handled properly
+	sta result
+	jsr get_jitter
+	sta <jitter
+	jsr get_jitter  ; occurs on odd clock
+	cmp <jitter
+	jsr error_if_eq
+	
+	jmp tests_passed
+
+; Return current jitter in A. Takes an even number of clocks.
+get_jitter:
+	lda <0          ; make routine total an even number of clocks
+	lda #$40        ; clear frame irq flag
+	sta $4017
+	lda #$00        ; begin mode 0, frame irq enabled
+	sta $4017
+	ldy #48         ; 29827 delay
+	lda #123                
+	jsr delay_ya2
+	 ldy #26        ; 3424 delay
+	 lda #25                
+	 jsr delay_ya1
+	lda $4015       ; read at 33255
+	and #$40
+	rts

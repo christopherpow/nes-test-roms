@@ -1,0 +1,82 @@
+; Shell that sets up common services, calls main,
+; and handles exit result
+
+; Sets up environment, calls main, then exit 0
+run_main:
+	; Initialize libraries
+	jsr init_crc
+	
+	; Establish consistent environment before
+	; running main
+	jsr wait_vbl
+	lda #0
+	sta SNDMODE
+	tax
+	tay
+	clc
+	clv
+	
+	jsr main
+	
+	; Default to silent exit if main returns
+	lda #0
+
+; Exits program and prints result code if non-zero
+exit:
+	; Disable IRQ and NMI
+	sei
+.if !BUILD_NSF
+	ldx #0
+	stx PPUCTRL
+.endif
+	
+	; Reset stack
+	dex
+	txs
+	
+.if !BUILD_MULTI
+	; 0: ""
+	cmp #1
+	jlt exit_
+	
+	; 1: "Failed"
+	bne :+
+	print_str {newline,"Failed"}
+	jmp exit_
+	
+	; n: "Error n"
+:	pha
+	print_str {newline,"Error "}
+	jsr print_dec
+	pla
+.endif
+	jmp exit_
+
+
+;;;; Default NMI/IRQ
+
+; Default NMI and IRQ handlers
+
+.ifndef CUSTOM_NMI
+zp_byte	nmi_count
+
+BEGIN_NMI
+	inc nmi_count
+	rti
+.code
+
+; Waits for NMI
+; Preserved: X, Y
+wait_nmi:
+	lda nmi_count
+:	cmp nmi_count
+	beq :-
+	rts
+.endif
+
+.ifndef CUSTOM_IRQ
+BEGIN_IRQ
+	bit SNDCHN	; clear APU IRQ flag
+	rti
+.code
+.endif

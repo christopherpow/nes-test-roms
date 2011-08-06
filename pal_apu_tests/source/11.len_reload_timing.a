@@ -1,0 +1,86 @@
+; Write to length counter reload should be ignored when made during length
+; counter clocking and the length counter is not zero.
+
+	.include "prefix_apu.a"
+
+; Length reload register and channel mask to allow testing each channel
+reload = $4003
+mask   = $01
+
+test_name:
+	.db "APU LENGTH RELOAD TIMING",0
+
+reset:
+	jsr setup_apu
+	
+	lda #2;) Reload just before length clock should work normally
+	sta result
+	jsr sync_apu
+	lda #$38        ; length = 6
+	sta reload
+	lda #$40        ; begin mode 0
+	sta $4017
+	ldy #205        ; 16622 delay
+	lda #15         
+	jsr delay_ya0
+	lda #$18        ; reload counter with 2
+	sta reload      ; write at 16628
+	lda #mask
+	jsr count_length
+	cmp #1          ; should have reloaded then decremented
+	jsr error_if_ne
+	
+	lda #3;) Reload just after length clock should work normally
+	sta result
+	jsr sync_apu
+	lda #$38        ; length = 6
+	sta reload
+	lda #$40        ; begin mode 0
+	sta $4017
+	ldy #205        ; 16624 delay
+	lda #15         
+	jsr delay_ya2
+	lda #$18        ; reload counter with 2
+	sta reload      ; write at 16630
+	lda #mask
+	jsr count_length
+	cmp #2          ; should have reloaded
+	jsr error_if_ne
+	
+	lda #4;) Reload during length clock when ctr = 0 should work normally
+	sta result
+	jsr sync_apu
+	lda #0  ; clear length
+	sta $4015
+	lda #mask       ; enable
+	sta $4015
+	lda #$40        ; begin mode 0
+	sta $4017
+	ldy #205        ; 16623 delay
+	lda #15         
+	jsr delay_ya1
+	lda #$18        ; reload counter with 2
+	sta reload      ; write at 16629
+	lda #mask
+	jsr count_length
+	cmp #2          ; should have reloaded (and not decremented)
+	jsr error_if_ne
+	
+	lda #5;) Reload during length clock when ctr > 0 should be ignored
+	sta result
+	jsr sync_apu
+	lda #$38        ; length = 6
+	sta reload
+	lda #$40        ; begin mode 0
+	sta $4017
+	ldy #205        ; 16623 delay
+	lda #15         
+	jsr delay_ya1
+	lda #$18        ; try to reload counter with 2
+	sta reload      ; write at 16629
+	lda #mask
+	jsr count_length
+	cmp #5          ; should have ignored reload
+	jsr error_if_ne
+	
+	jmp tests_passed

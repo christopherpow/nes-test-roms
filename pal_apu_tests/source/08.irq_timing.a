@@ -1,0 +1,64 @@
+; IRQ handler is invoked at minimum 33257 clocks after writing
+; $00 to $4017.
+
+	.include "prefix_apu.a"
+
+phase = 1
+
+test_name:
+	.db     "APU FRAME IRQ TIMING",0
+
+reset:
+	jsr setup_apu
+	
+	; Shortest instruction is 2 clocks, so two tests
+	; are needed with delays differing by 1 clock
+	
+	lda #1
+	sta phase
+loop:   sei
+	lda #4;) Never occurred
+	sta result
+	jsr sync_apu
+	lda #$40        ; clear flag
+	sta $4017
+	lda #2;) Too soon
+	cli
+	ldx #$00        ; begin mode 0
+	stx $4017       ; 1
+	
+	ldy #254        ; 33247 delay
+	ldx #19
+dly1:   dex
+	bne dly1
+	ldx #25
+	dey
+	bne dly1
+	
+	ldx <phase      ; 3
+	bne +           ; 2/3
+:       nop             ; 2
+	lda #0          ; 2
+	; IRQ occurs here
+	lda #3;) Too late
+	
+	ldy #0          ; 33224 delay
+	ldx #217
+:       dex
+	bne -
+	ldx #24
+	dey
+	bne -
+	
+	sei
+	lda result
+	jsr error_if_ne
+	
+	dec phase
+	bpl loop
+	
+	jmp tests_passed
+
+irq:    sta result
+	bit $4015
+	rti

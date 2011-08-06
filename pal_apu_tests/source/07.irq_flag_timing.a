@@ -1,0 +1,66 @@
+; Frame interrupt flag is set three times in a row 33255 clocks after
+; writing $4017 with $00.
+
+	.include "prefix_apu.a"
+
+test_name:
+	.db "APU FRAME IRQ FLAG TIMING",0
+
+begin_test:
+	sta result
+	jsr sync_apu
+	lda #$40        ; clear flag
+	sta $4017
+	rts
+
+reset:
+	jsr setup_apu
+	
+	lda #2;) Flag first set too soon
+	jsr begin_test
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #62         ; 33250 delay
+	lda #106                
+	jsr delay_ya1
+	lda $4015       ; at 33254 flag should be clear
+	and #$40
+	jsr error_if_ne
+	
+	lda #3;) Flag first set too late
+	jsr begin_test
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #62         ; 33251 delay
+	lda #106                
+	jsr delay_ya2
+	lda $4015       ; at 33255 flag should be set
+	and #$40
+	jsr error_if_eq
+	
+	lda #4;) Flag last set too soon 
+	jsr begin_test
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #62         ; 33252 delay
+	lda #106                
+	jsr delay_ya3
+	lda $4015       ; at 33256 read and clear flag
+	lda $4015       ; flag should be set again
+	and #$40
+	jsr error_if_eq
+	
+	lda #5;) Flag last set too late 
+	jsr begin_test
+	lda #$00        ; begin mode 0
+	sta $4017
+	ldy #62         ; 33253 delay
+	lda #106                
+	jsr delay_ya4
+	lda $4015       ; at 33257 read and clear flag
+	lda $4015       ; flag should't be set again
+	and #$40
+	jsr error_if_ne
+	
+	jmp tests_passed
+	

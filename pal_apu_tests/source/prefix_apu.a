@@ -1,0 +1,52 @@
+      .include "validation.a"
+      .include "sync_apu.a"
+      
+; Set up APU with square 1 enabled and unhalted
+setup_apu:
+      sei
+      lda   #0
+      sta   result
+      lda   #$40        ; mode 0, interrupt disabled
+      sta   $4017
+      lda   #$01        ; enable square 1
+      sta   $4015
+      lda   #$10        ; unhalt length
+      sta   $4000
+      lda   #$7f        ; sweep off
+      sta   $4001
+      lda   #$ff        ; period
+      sta   $4002
+      rts
+      .code
+
+; Count number of length clocks required until $4015 AND A becomes 0
+; then return result in A.
+count_length:
+      ldy   #0
+      bit   $4015
+      beq   count_length_end
+      ldx   #$c0
+:     stx   $4017
+      iny
+      beq   count_length_overflow
+      bit   $4015
+      bne   -
+count_length_end:
+      tya
+      rts
+count_length_overflow:
+      lda   #$ff
+      rts
+      .code
+
+; Synchronize with DMC
+sync_dmc:
+      lda   #$00
+      sta   $4010
+      lda   #1
+      sta   $4013
+      lda   #$10
+      sta   $4015
+:     bit   $4015
+      bne   -
+      rts
