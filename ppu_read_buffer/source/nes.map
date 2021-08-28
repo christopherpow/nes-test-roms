@@ -1,0 +1,81 @@
+Modules list:
+-------------
+test_ppu_read_buffer.o:
+    CODE              Offs=000000  Size=000FC1  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000FAD  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=000000  Align=00001  Fill=0000
+    DATA              Offs=000000  Size=000000  Align=00001  Fill=0000
+    ZEROPAGE          Offs=000000  Size=000091  Align=00001  Fill=0000
+    NULL              Offs=000000  Size=000000  Align=00001  Fill=0000
+    HEADER            Offs=000000  Size=000007  Align=00001  Fill=0000
+    LIB               Offs=000000  Size=000752  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=00000C  Align=00001  Fill=0000
+    CHARS             Offs=000000  Size=000FF0  Align=00001  Fill=0000
+    LIB_TEMPS         Offs=000000  Size=000006  Align=00001  Fill=0000
+    DELAY_65536YXA    Offs=000000  Size=000056  Align=00001  Fill=0000
+    DELAY_256         Offs=000000  Size=000012  Align=00001  Fill=0000
+    DELAY_65536       Offs=000000  Size=000026  Align=00001  Fill=0000
+    POINTERS          Offs=000000  Size=00009C  Align=00001  Fill=0000
+    TEST_RESULTS      Offs=000000  Size=000051  Align=00001  Fill=0000
+    DMA_TEST_MATERIAL Offs=000000  Size=000004  Align=00001  Fill=0000
+    TEMPLATE1         Offs=000000  Size=00005E  Align=00001  Fill=0000
+    TEMPLATE2         Offs=000000  Size=000030  Align=00001  Fill=0000
+    CHARS_P2          Offs=000000  Size=000BDA  Align=00001  Fill=0000
+    CHARS_GFX3a       Offs=000000  Size=000D40  Align=00001  Fill=0000
+    CHARS_GFX3b       Offs=000000  Size=001000  Align=00001  Fill=0000
+    CHARS_SPR1        Offs=000000  Size=0002C0  Align=00001  Fill=0000
+    CHARS_GFX1        Offs=000000  Size=001000  Align=00001  Fill=0000
+    CHARS_GFX2        Offs=000000  Size=001000  Align=00001  Fill=0000
+    CHARS_6C00        Offs=000000  Size=0003FB  Align=00001  Fill=0000
+    CHARS_P4          Offs=000000  Size=002000  Align=00001  Fill=0000
+    STACK             Offs=000000  Size=000060  Align=00001  Fill=0000
+    OAM_BUF           Offs=000000  Size=000100  Align=00100  Fill=0000
+    CODE_BUF          Offs=000000  Size=0004FA  Align=00100  Fill=0000
+    FILLER            Offs=000000  Size=00175F  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+CHARS                 000000  000FEF  000FF0  00001
+DATA                  000000  000000  000000  00001
+HEADER                000000  000006  000007  00001
+NULL                  000000  000000  000000  00001
+LIB_TEMPS             000004  000009  000006  00001
+TEST_RESULTS          00000A  00005A  000051  00001
+ZEROPAGE              00005B  0000EB  000091  00001
+STACK                 000100  00015F  000060  00001
+OAM_BUF               000200  0002FF  000100  00100
+CODE_BUF              000300  0007F9  0004FA  00100
+BSS                   0007FA  0007FA  000000  00001
+CHARS_GFX3b           001000  001FFF  001000  00001
+CHARS_P2              002000  002BD9  000BDA  00001
+CHARS_6C00            002BE0  002FDA  0003FB  00001
+CHARS_GFX2            003000  003FFF  001000  00001
+CHARS_SPR1            004000  0042BF  0002C0  00001
+CHARS_GFX3a           0042C0  004FFF  000D40  00001
+CHARS_GFX1            005000  005FFF  001000  00001
+CHARS_P4              006000  007FFF  002000  00001
+FILLER                00C000  00D75E  00175F  00001
+CODE                  00D75F  00E71F  000FC1  00001
+LIB                   00E720  00EE71  000752  00001
+POINTERS              00EE72  00EF0D  00009C  00001
+RODATA                00EF0E  00FEBA  000FAD  00001
+TEMPLATE2             00FEBB  00FEEA  000030  00001
+DMA_TEST_MATERIAL     00FF00  00FF03  000004  00001
+TEMPLATE1             00FF04  00FF61  00005E  00001
+DELAY_65536YXA        00FF66  00FFBB  000056  00001
+DELAY_256             00FFBC  00FFCD  000012  00001
+DELAY_65536           00FFCE  00FFF3  000026  00001
+VECTORS               00FFF4  00FFFF  00000C  00001
+
+
+Exports list:
+-------------
+
+
+
+Imports list:
+-------------
+
