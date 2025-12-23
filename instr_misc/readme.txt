@@ -72,7 +72,7 @@ result code.
 
 To allow an emulator to know when one of these tests is running and the
 data at $6000+ is valid, as opposed to some other NES program, $DE $B0
-$G1 is written to $6001-$6003.
+$61 is written to $6001-$6003.
 
 See the source code for more information about a particular test and why
 it might be failing. Each test has comments anout its operation.
