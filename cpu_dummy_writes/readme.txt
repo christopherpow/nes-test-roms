@@ -9,7 +9,7 @@ then writes back the same value, and then writes the modified value.
 
 For example, the cycle by cycle listing of an absolute-addressing
 instruction such as INC is as follows
-(from 65doc.txt by John West and Marko M�kel�):
+(from 65doc.txt by John West and Marko Mäkelä):
 
      Read-Modify-Write instructions (ASL, LSR, ROL, ROR, INC, DEC,
                                      SLO, SRE, RLA, RRA, ISB, DCP)
