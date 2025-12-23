@@ -9,7 +9,7 @@ then writes back the same value, and then writes the modified value.
 
 For example, the cycle by cycle listing of an absolute-addressing
 instruction such as INC is as follows
-(from 65doc.txt by John West and Marko Mäkelä):
+(from 65doc.txt by John West and Marko Mï¿½kelï¿½):
 
      Read-Modify-Write instructions (ASL, LSR, ROL, ROR, INC, DEC,
                                      SLO, SRE, RLA, RRA, ISB, DCP)
@@ -155,7 +155,7 @@ result code.
 
 To allow an emulator to know when one of these tests is running and the
 data at $6000+ is valid, as opposed to some other NES program, $DE $B0
-$G1 is written to $6001-$6003.
+$61 is written to $6001-$6003.
 
 
 Audible output

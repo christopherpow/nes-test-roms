@@ -51,7 +51,7 @@ doesn't implement it at all.
 The final result is displayed and also written to $6000. Before the test
 starts, $80 is written there so you can tell when it's done. If a test
 needs the NES to be reset, it writes $81 there (emulator should wait a
-couple of frames after seeing $81). In addition, $DE $B0 $G1 is written
+couple of frames after seeing $81). In addition, $DE $B0 $61 is written
 to $6001-$6003 to allow an emulator to detect when a test is being run,
 as opposed to some other NES program. In NSF builds, the final result is
 also reported via a series of beeps (see below).
