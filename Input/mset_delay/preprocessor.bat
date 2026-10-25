@@ -1,0 +1,16 @@
+@del temp\mset_delay.c.pre.txt
+
+cc65\bin\cc65 -o temp\mset_delay.c.pre.txt -E -O -T -g mset_delay.c
+@IF ERRORLEVEL 1 GOTO error
+
+@echo.
+@echo.
+@echo Build successful!
+@pause
+@GOTO end
+:error
+@echo.
+@echo.
+@echo Build error!
+@pause
+:end

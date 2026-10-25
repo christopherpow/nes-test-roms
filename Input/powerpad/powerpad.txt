@@ -1,0 +1,212 @@
+Power Pad information
+---------------------
+
+Version: 1.2 (03/12/00)
+-----------------------
+
+*DISCLAIMER*
+I cannot be held responsible for the wrong usage of information contained
+herein as well as to damages incurring to your NES and/or computer and/or
+anything related to you because of the misunderstanding of the information.
+
+What is a Power Pad ?
+---------------------
+The Power Pad is a device conceived by Ninteno which serves as an
+"exercising fun center" for the whole family. It was made for both the
+Famicom and NES. The info in this file is in regards to the NES version.
+
+How does it work ?
+------------------
+Well, simply put, it's a vinyl mat with 12 touch-sensitive "switches" or
+"buttons" area drawn on the unit. It has 2 sides, of which the only
+difference resides on the pattern drawn on the mat. When you step on a
+"button", a bit is set in the data stream. You can simulteaneously detect
+the state of the 12 buttons. Data is sent using only ONE controller port,
+but is parallel: the pad is separated in 2 banks of 6 switches. Two 4021
+shift registers (same thing as a regular joypad) record the state at the
+strobe. Both 4021's send their data on CP at the SAME time, using two
+different data lines: D3 and D4 (usually used by the Zapper). It doesn't
+affect D0, so you no game can detect it as being a regular joypad.
+
+You can compare it to a dual "regular" controller multiplexed within one serial
+channel. One of the series of buttons gets sent through D4, the other through
+D3, all simultaneously.
+
+Please refer to my page about NES joypads to find out more info on the serial
+channel used in NES controllers. IT SHOULD NOT be assumed that D3/D4 bits of
+the port are used by the Zapper. They can be used by ANY device. The only
+difference is that devices like regular controllers used a latched
+register system while the zapper has a direct connection between the bits and
+the switches, and thus is not aware of the CLK and STROBE signals.
+
+Joypad page is located at: http://www.ameth.org/~veilleux/nes_jp.html
+
+Data Format
+-----------
+           __________
++---------/          \-----------+
+|                       SIDE B   |
+|   __      __       __     __   |
+|  /  \    /  \     /  \   /  \  |
+| | 1  |  | 2  |   | 3  | | 4  | |
+|  \__/    \__/     \__/   \__/  |
+|   __      __       __     __   |
+|  /  \    /  \     /  \   /  \  |
+| | 5  |  | 6  |   | 7  | | 8  | |
+|  \__/    \__/     \__/   \__/  |
+|   __      __       __     __   |
+|  /  \    /  \     /  \   /  \  |
+| | 9  |  | 10 |   | 11 | | 12 | |
+|  \__/    \__/     \__/   \__/  |
+|                                |
++--------------------------------+
+
+           __________
++---------/          \-----------+
+|                       SIDE A   |
+|           __       __          |
+|          /  \     /  \         |
+|         |B 3 |   |B 2 |        |
+|          \__/     \__/         |
+|   __      __       __     __   |
+|  /  \    /  \     /  \   /  \  |
+| |B 8 |  |R 7 |   |R 6 | |B 5 | |
+|  \__/    \__/     \__/   \__/  |
+|           __       __          |
+|          /  \     /  \         |
+|         |B 11|   |B 10|        |
+|          \__/     \__/         |
+|                                |
++--------------------------------+
+(Numbers don't appear on side A of the pad on the real thing. They are
+there for reference. The "empty" spots still work as buttons by the way :)
+
+B= BLUE R= RED
+
+Use the following algorithm to read the pad:
+
+1- Strobe the controller port on which the Power Pad is connected
+2- Read D4 of port, store it in LSB of TEMP1
+3- Read D3 of port, store it in LSB of TEMP2
+4- Shift TEMP1 and TEMP2 to the LEFT
+5- Repeat 2,3,4 until 8 bits are read
+
+
+The result can be checked upon the following table:
+
+(DATA in D7 is the FIRST SENT BIT, and D0 is the LAST SENT in the 8-clocks
+cycle)
+
+TEMP1 (D4)
+==========
+          MSB                                              LSB
+        +------+------+------+------+------+------+------+------+
+BIT     |  D7  |  D6  |  D5  |  D4  |  D3  |  D2  |  D1  |  D0  |
+        +------+------+------+------+------+------+------+------+
+Button  |  4   |  3   |  12  |  8   |  --  |  --  |  --  |  --  |
+        +------+------+------+------+------+------+------+------+
+
+TEMP2 (D3)
+==========
+          MSB                                              LSB
+        +------+------+------+------+------+------+------+------+
+BIT     |  D7  |  D6  |  D5  |  D4  |  D3  |  D2  |  D1  |  D0  |
+        +------+------+------+------+------+------+------+------+
+Button  |  2   |  1   |  5   |  9   |  6   |  10  |  11  |  7   |
+        +------+------+------+------+------+------+------+------+
+  
+"--" means "Don't care", since those inputs are hardwired as LOGIC LOW.
+
+Reading Routine
+---------------
+
+Here is a PowerPad reading routine to put in your own NES programs. It was
+tested with success on a real NES. 
+
+; ---------------------------
+; read_powerpad will return the state of the buttons in D3_state and D4_state
+; Trashes: A,X,Y
+; ---------------------------
+jpPort = $4017   ; Constant containing the port address to which the pad
+                 ; is connected
+
+; Variables which store the states of the buttons. Refer to the tables for
+; decoding info
+D3_state = $00   
+D4_state = $01
+
+read_powerpad:
+
+ ldy #$01
+ sty $4016  ;store 1 out the strobe
+ dey
+ sty $4016  ;store 0 out the strobe
+
+ ldy #$08   ;Number of iterations
+
+@loop_read:
+ lda jpPort  ;read the button
+	   ; Shift D3 three bits to the right so that the data becomes the LSB
+ lsr       ; D0 out to carry 
+ lsr	   ; D1 out to carry
+ lsr	   ; D2 out to carry
+ lsr	   ; D3 out to carry
+ rol D3_state  ; shove all bits left, and put the carry at the bottom
+ lsr	   ; D4 out to carry
+ rol D4_state
+ dey	   ; 1 less 
+ bne @loop_read  ;loop 8 times for all 8 pads
+
+rts        ;return
+
+;-------------- End of Source ---------------
+
+Test Program
+------------
+A test program to test your implementation of the powerpad is available at
+http://www.ameth.org/~veilleux/powerpad.nes
+
+It has been coded by me and is very preliminary. A better program will come
+later.
+
+If you do not have web access, I can e-mail you a UU-encoded binary. Simply
+send me your coordinates at the address below.
+
+Sources will not be released until the final version is done.
+
+
+Contacts
+--------
+Author: Tennessee Carmel-Veilleux (veilleux@ameth.org)
+
+Credits
+-------
+Jeremy D. Chadwick (yoshi@parodius.com) for his excellent NES technical
+information archive (nestech.txt).
+
+Kevin Horton (khorton@iquest.net) for help on hardware and technical
+issues.
+
+History
+-------
+
+1.2 (03/12/00)
+~~~~~~~~~~~~~~
+- Modified the reading routine (put one made by TNSe, thanks :)
+- Fixed some minor mistakes
+
+1.1 (10/03/99)
+~~~~~~~~~~~~~~
+- Added read routine
+- Fixed wrong table
+- Made test program
+- Started on schematics
+- Created history
+- TNSE^1999 implemented the PowerPad in his (non-public) NESten emu.
+
+1.0 (09/23/99)
+~~~~~~~~~~~~~~
+- First public release
+- No schematic
+- Wrong tables (inverted tables for D4/D3)
+- No test program

@@ -1,0 +1,12 @@
+Post by Alyosha_TAS » Sat Jan 01, 2022 5:02 pm
+
+Attached is a test ROM that demonstrates the delay between DMC DMA and IRQ execution. It uses the value stored in the Y register to set the volume of the pulse channel that is enabled in the IRQ handler. Y has a value for 0 volume before DMA, then the following instrucitons occur:
+
+STA $4015 (enable DMC channel and trigger immediate DMA)
+NOP
+NOP
+LDY $3F
+
+On (my) console, this plays a tone about 50% of the time, consistent with the finding that the CPU starts randomly on a get or put cycle.
+
+Note that on Visual NES another NOP can be fit in as well, I'm not sure what revision it is based on but possibly this is revision dependent as this would be inconsistent with constraints of TASes on my console.

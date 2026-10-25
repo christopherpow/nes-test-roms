@@ -1,0 +1,33 @@
+D34TEST
+Brad Smith, 2024
+
+d34test4106.nes
+d34test4017.nes
+
+This is a simple test ROM to check the controller input lines on NES/Famicom.
+
+Each frame strobes $4016, then reads 32 bits from data lines d3 and d4
+on either $4016 or $4017. It also reads 16 bits from line d0.
+
+The bits are displayed left to right in a big-endian hexadecimal manner:
+ 8000 = first bit
+ 4000 = second bit
+ 2000 = third bit
+ 1000 = fourth bit
+ 0800 = fifth bit
+ ...
+ 0080 = ninth bit
+ 0008 = thirteenth bit
+ 0001 = sixteenth bit
+
+Related: CTRLTEST test ROM reads 16 bits from all 5 data lines
+https://forums.nesdev.org/viewtopic.php?f=2&t=19752
+
+Related: MSET test ROM for SNES mouse
+https://forums.nesdev.com/viewtopic.php?p=231608#p231608
+
+Built with cc65 V2.19 - Git 0541b65
+
+
+Brad Smith
+http://rainwarrior.ca

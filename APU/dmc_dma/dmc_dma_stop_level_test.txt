@@ -1,0 +1,39 @@
+Post by Fiskbit » Sat Jan 04, 2025 1:55 pm
+
+Hey, Alyosha! Nice to see you around.
+Alyosha_TAS wrote: Thu Jan 02, 2025 5:17 pm
+>Now that I think about it, I don't think I know what precisely happens when a 1 is written to the DMC bit in $4015. When is the channel considered in an 'off' state such that writing a 1 re-enables it and resets the sample counter? In the case above where 0 samples remain but the buffer is still full, what happens? Is there a difference between setting the count to zero via explicit disabling and it happening via decrements for the purposes of later re-enabling?
+
+The DMC channel enable/disable controls the DPCM memory fetch and not the playback unit itself. If a byte makes it into the sample buffer, it will always be played regardless of the state of the channel. The sample is considered done when the last byte is fetched into the sample buffer, even though there are still about 15 bits waiting to be played back. The exact timing here is not something I have tested thoroughly and would involve probably 2 tests: doing enable writes to $4015 at every cycle position in proximity to the end of sample playback, and finding the exact IRQ timing for when sample playback ends. I believe you've done the latter, but I'm not familiar with the data and I think no one has done the former.
+
+
+This extra DMA sounds like the extra DMA bug I researched earlier in the thread, described here, tested by the implicit stop test, and documented on the wiki. Specifically, this issue appears to be present on post-1990 CPUs and not present on pre-1990 CPUs, so all H's and some G's have it.
+
+There's another test I wrote that uses CPU test mode to further check the behavior of the extra DMA. I've attached a WIP version to this post; ideally I'll make this into a pass/fail test eventually. This test requires implementing $401A read, which returns the current DMC level. Mesen was able to pass the implicit and explicit stop tests without passing this test at first, though I don't remember what was causing Sour trouble. Mesen now has a test mode option that implements the readable test mode registers and passes this test. From right to left, the 8 columns in this test correspond to the first 8 rows of the implicit stop test, testing the DMC level after each bit is played to verify exactly what is played. The test showed that the extra byte was played and came from the same address as the first.
+
+The correct data should be:
+
+40 40 40 40 40 40 40 40 
+40 40 3E 3E 3E 3E 3E 3E 
+40 40 3C 3C 3C 3C 3C 3C 
+40 40 3A 3A 3A 3A 3A 3A 
+40 40 38 38 38 38 38 38 
+40 40 36 36 36 36 36 36 
+40 40 34 34 34 34 34 34 
+40 40 32 32 32 32 32 32 
+40 40 30 30 30 30 30 30 
+3E 3E 2E 2E 30 30 30 30 
+3C 3C 2C 2C 30 30 30 30 
+3A 3A 2A 2A 30 30 30 30 
+38 38 28 28 30 30 30 30 
+36 36 26 26 30 30 30 30 
+34 34 24 24 30 30 30 30 
+32 32 22 22 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 
+30 30 20 20 30 30 30 30 

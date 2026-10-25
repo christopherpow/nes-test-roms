@@ -1,0 +1,24 @@
+0.03a (2019-04-15)
+* Rebuild with Python 3 and recent ca65
+* Move audio subroutine names into Pently namespace
+* Move binaries from repository to release
+
+0.03 (2012-05-14)
+* Axe: a music toy
+* music engine supports playing notes and performing a call back
+* pads: disable DPCM-safe operation at compile time
+* Can double-shoot offscreento leave pattern screens
+* ZapPing: Press player 1 B button to leave this screen
+
+0.02 (2011-09-30)
+* pads: Zapper trigger presses the A Button, to simplify programming
+* has a title screen and music
+* ZapPing: a tennis game
+* Build process produces an NSF
+
+0.01 (2011-09-18)
+* initial release
+* kernel tests with solid color: Y on/off, 2-player Y, and X/Y
+  (in X/Y, X is very noisy)
+* pattern tests: horizontal lines, vertical lines, and ball patterns
+* trigger hold time

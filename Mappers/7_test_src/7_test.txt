@@ -1,0 +1,34 @@
+7_test_0.nes
+expected results
+
+PRG BANKS: $08
+07 VS 00: (unknown)
+00 VS FF: (unknown)
+07 VS 01: (unknown)
+07 VS 02: (unknown)
+BUS CONFLICS: (unknown)
+SUBMAPPER DETECTED: (unknown)
+
+
+7_test_1.nes
+expected results
+
+PRG BANKS: $08
+07 VS 00: $07
+00 VS FF: $00
+07 VS 01: $07
+07 VS 02: $07
+BUS CONFLICS: NONE
+SUBMAPPER DETECTED: $01
+
+
+7_test_2.nes
+expected results
+
+PRG BANKS: $08
+07 VS 00: $00
+00 VS FF: $00
+07 VS 01: $01
+07 VS 02: $02
+BUS CONFLICS: AND
+SUBMAPPER DETECTED: $02

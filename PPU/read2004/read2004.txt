@@ -1,0 +1,165 @@
+by Quietust, Mon Feb 28, 2005 8:56 pm
+
+I've just finished improving my original test program so it reads all of the
+values during the first 3 scanlines, spread out across 42 frames - 12 values
+per scanline, 3 scanlines per every OTHER frame. With the sprite pattern I used,
+this will make it always fetch the same sprites on those scanlines, providing an
+accurate snapshot of exactly what is going on.
+
+The data sequence starts at cycle ~339 and ends at cycle ~249, a total of 252
+samples (the last 4 will always be zero).
+
+The test program can be found at the following URL, in case you have a real NES
+to test it on: http://www.qmtpro.com/~nes/demos/read2004.nes
+
+[update]
+
+After having the above program (and a few modifications) tested on
+Kevin Horton's CopyNES, I believe I have definitive information on the PPU's
+internal SPR-RAM access patterns:
+
+Cycles 0-63: idle - reading $2004 will return $FF
+Cycles 64-255: sprite evaluation
+- read each sprite's Y coordinate twice, starting at sprite zero (S[00], S[00],
+  S[04], S[04], S[08], S[08], ...)
+- if it's in range, read the remaining bytes of that sprite, twice each (S[00],
+  S[00], S[04], S[04], S[05], S[05], S[06], S[06], S[07], S[07], S[08], S[08],
+  S[0C], S[0C], ...)
+- once all 64 sprites have been evaluated, "thrash" between fetching sprite N
+  Y-coord and sprite 63 Y-coord (S[00], S[FC], S[04], S[FC], S[08], S[FC], ...)
+Cycles 256-319: sprite fetches (8 sprites, 8 cycles each)
+- for each sprite, read S[n+0], S[n+1], S[n+2], S[n+3], S[foo], S[foo], S[foo],
+  S[foo], where 'foo' is usually the X-coordinate (n+3)
+- for the first unused sprite, read S[FC], followed by seven $FFs
+- for remaining unused sprites, read eight $FFs
+Cycles 320-340: read S[foo], where 'foo' is usually the the Y-coordinate of the
+first sprite on the scanline
+
+Nintendulator currently emulates this (based on the initial tests and some
+'guesswork'), though it returns values consistent with no sprites being
+rendered at all.
+
+
+
+by Quietust, Fri Oct 20, 2006 4:57 pm
+
+One set of output my CopyNES generated from this ROM is as follows (broken into
+lines on different boundaries to illustrate it better):
+
+xx xx xx xx
+AA AA
+01 01 10 10 01 01 00 00
+00 00 20 20 01 01 01 01
+00 00 30 30 01 01 02 02
+00 00 40 40 02 02 03 03
+00 00 50 50 02 02 04 04
+00 00 60 60 02 02 05 05
+00 00 70 70 03 03 06 06
+00 00 80 80 03 03 07 07
+05 01
+A0 01
+41 01
+0B 01
+05 01
+E0 01
+81 01
+0F 01
+05 01
+F3 01
+00 01 12 01 05 01 F5 01
+05 01
+05 01
+05 01
+05 01
+05 01
+05 01
+06 01
+06 01
+06 01
+06 01
+06 01
+06 01
+06 01
+06 01
+07 01
+07 01
+07 01
+08 01
+09 01
+0A 01
+0A 01
+0B 01
+0C 01
+0D 01
+0E 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+0F 01
+10 01
+AA 01
+01 01
+00 01
+00 01
+00 01
+01 10 01 00 00 00 00 00
+00 20 01 01 01 01 01 01
+00 30 01 02 02 02 02 02
+00 40 02 03 03 03 03 03
+00 50 02 04 04 04 04 04
+00 60 02 05 05 05 05 05
+00 70 03 06 06 06 06 06
+xx xx xx xx
+
+
+
+by Quietust, Wed Nov 01, 2006 8:33 pm
+
+Actually, I never posted any screenshots of read2004.nes, just the raw output
+data. If you want to know what data the current read2004.nes should output,
+either read my post above or read the exact same data below, formatted as 10
+entries per line as the ROM outputs:
+
+FF FF FF FF AA AA 01 01 10 10
+01 01 00 00 00 00 20 20 01 01
+01 01 00 00 30 30 01 01 02 02
+00 00 40 40 02 02 03 03 00 00
+50 50 02 02 04 04 00 00 60 60
+02 02 05 05 00 00 70 70 03 03
+06 06 00 00 80 80 03 03 07 07
+05 01 A0 01 41 01 0B 01 05 01
+E0 01 81 01 0F 01 05 01 F3 01
+00 01 12 01 05 01 F5 01 05 01
+05 01 05 01 05 01 05 01 05 01
+06 01 06 01 06 01 06 01 06 01
+06 01 06 01 06 01 07 01 07 01
+07 01 08 01 09 01 0A 01 0A 01
+0B 01 0C 01 0D 01 0E 01 0F 01
+0F 01 0F 01 0F 01 0F 01 0F 01
+0F 01 0F 01 0F 01 0F 01 0F 01
+0F 01 0F 01 0F 01 0F 01 0F 01
+0F 01 0F 01 10 01 AA 01 01 01
+00 01 00 01 00 01 01 10 01 00
+00 00 00 00 00 20 01 01 01 01
+01 01 00 30 01 02 02 02 02 02
+00 40 02 03 03 03 03 03 00 50
+02 04 04 04 04 04 00 60 02 05
+05 05 05 05 00 70 03 06 06 06
+06 06 00 00 00 00
+
+There is no other information to convey, other than possibly differently
+aligned data sets(i.e. with a differing number of FFs at the beginning).

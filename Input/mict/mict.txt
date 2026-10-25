@@ -1,0 +1,13 @@
+mict.nes
+Famicom Microphone Test, by Brad Smith 2019
+http://rainwarrior.ca
+
+Very simple test of the Famicom microphone.
+Reads $4016.d2 once per frame, giving a rolling display onscreen.
+
+
+Source code requires CC65. (Place it in an adjacent cc65 folder, run build.bat.)
+https://cc65.github.io/
+
+build_runtime.bat is used to rebuild temp\runtime.lib (instructions are contained as comments)
+preprocessor.bat is used to diagnose preprocessor usage

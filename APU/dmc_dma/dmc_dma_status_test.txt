@@ -1,0 +1,8 @@
+Post by Fiskbit » Fri Dec 09, 2022 1:39 pm
+
+Here is a really quick-and-dirty hack of my earlier tests that I believe does what you're asking. It shifts the position of an LDA $4015 around the time that the last DMA of a sample will happen. On hardware (and Mesen), I see 5 0's and then 5 1's. NesHawk from earlier this year gives 3 0's and 7 1's.
+
+At some point, I'll try to make another version of this that tests for IRQ timing.
+
+
+Edit: Just for fun, I also tried a version of this with looping enabled to see if the counter is ever visibly 0, and it gave all 1's. I also realize I probably should've made this sweep across in the other direction (so it'd give 1's and then 0's), but quick-and-dirty, as I said!

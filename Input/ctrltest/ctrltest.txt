@@ -1,0 +1,36 @@
+CTRLTEST
+Brad Smith, 2020
+
+ctrltest4106.nes
+ctrltest4017.nes
+
+This is a simple test ROM to check the controller input lines on NES/Famicom.
+
+Each frame strobes $4016, then reads 16 bits from each of the 5 data lines
+on either $4016 or $4017.
+
+The bits are displayed left to right in a big-endian hexadecimal manner:
+ 8000 = first bit
+ 4000 = second bit
+ 2000 = third bit
+ 1000 = fourth bit
+ 0800 = fifth bit
+ ...
+ 0080 = ninth bit
+ 0008 = thirteenth bit
+ 0001 = sixteenth bit
+
+This is suitable for reading controllers that report up to 16 bits on any of
+the data lines. Standard controllers, SNES or Virtual Boy, Zapper, or the
+Famicom microphone, for example. Devices that need longer reports, such as
+the SNES mouse are less suitable for these test ROMs, though you still get
+the first 16 bits of their report.
+
+Related: MSET test ROM for SNES mouse
+https://forums.nesdev.com/viewtopic.php?p=231608#p231608
+
+Built with cc65 V2.18 - Git f75657d
+
+
+Brad Smith
+http://rainwarrior.ca

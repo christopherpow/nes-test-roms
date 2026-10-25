@@ -1,0 +1,19 @@
+This ROM displays a single color at a time for diagnostic purposes.
+
+Should work on both NTSC or PAL.
+
+
+Controls:
+
+Left/Right - Select low bits of color (chroma)
+Up/Down    - Select high bits of color (luma)
+B+Left     - toggle blue emphasis
+B+Up       - toggle green emphasis (red on PAL)
+B+Right    - toggle red emphasis (green on PAL)
+B+Down     - turn off all emphasis
+A          - toggle greyscale
+Select     - toggle display
+
+
+Brad Smith, 9/18/2015
+http://rainwarrior.ca

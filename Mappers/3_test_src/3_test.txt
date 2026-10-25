@@ -1,0 +1,37 @@
+3_test_0.nes
+expected results
+
+PRG RAM: NO
+CHR BANKS: $04
+03 VS 00: (unknown)
+00 VS FF: (unknown)
+03 VS 01: (unknown)
+03 VS 02: (unknown)
+BUS CONFLICS: (unknown)
+SUBMAPPER DETECTED: (unknown)
+
+
+3_test_1.nes
+expected results
+
+PRG RAM: NO
+CHR BANKS: $04
+03 VS 00: $03
+00 VS FF: $00
+03 VS 01: $03
+03 VS 02: $03
+BUS CONFLICS: NONE
+SUBMAPPER DETECTED: $01
+
+
+3_test_2.nes
+expected results
+
+PRG RAM: NO
+CHR BANKS: $04
+03 VS 00: $00
+00 VS FF: $00
+03 VS 01: $01
+03 VS 02: $02
+BUS CONFLICS: AND
+SUBMAPPER DETECTED: $02

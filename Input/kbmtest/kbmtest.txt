@@ -1,0 +1,34 @@
+KBMTEST ROM
+Brad Smith, 2024
+
+This is a test of the USB Keyboard Mouse interface proposed in this NESdev thread:
+- https://forums.nesdev.org/viewtopic.php?f=9&t=16363&p=248338#p248338
+
+It will look for the connected device on either of $4016 or $4017.
+If it says PORT 0000 no device is found.
+
+The mouse reports 3 buttons, plus coordinates X and Y, and a cumulative wheel counter.
+A mouse cursor will also show the current mouse position onscreen.
+
+The middle of the screen will log keyup/keydown events as they are recieved.
+
+
+
+How to build:
+- Download cc65 (windows snapshot) and place it in a cc65 folder in this directory
+  https://cc65.github.io/
+- Run build.bat to build the ROM to temp/kbmtest.nes
+- This program uses a reduced subset of the cc65 C runtime library, which is pre-built,
+  but if you need to rebuild it (e.g. for a later version of cc65) follow the instructions
+  in build_runtime.bat
+- build_gfx.py can be used to rebuild the CHR graphics from the gfx folder PNG files,
+  requires Python3 with PIL
+
+This code was adapted from an earlier project which might have more instructive documentation:
+- https://github.com/bbbradsmith/boingnes
+
+Built with cc65 V2.19 - Git 0541b65
+
+
+Brad Smith
+http://rainwarrior.ca

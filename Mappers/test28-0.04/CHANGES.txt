@@ -1,0 +1,30 @@
+0.04 (2018-03-15)
+* compatibility with newer versions of ca65
+* tools: upgrade to Python 3
+* makefile: use py.exe of Python 3.3 and later for Windows
+* README: convert to Markdown and expand some things
+* Brighter shade of green
+
+0.03 (2012-11-10)
+* automatic test steps through all combinations of mode, outer
+  bank, and inner bank
+* steps through a few combinations with a different order of
+  writes (inner bank, outer bank, and mode)
+* CHR bank size detection (not displayed yet)
+* test that changing the CHR bank doesn't change the PRG bank
+* test soft reset (should not change PRG bank)
+* font is reloaded for each error message in case the CHR
+  bank changed
+* tweaks to a couple glyphs in the 8x16 font
+* "failed to return" message is handled by wrong banks
+
+0.02 (2012-11-02)
+* under Windows, adds Python 2.7 to the PATH
+* automatically compares PRG banks to expected result for mode
+* displays read-back mirroring mode
+
+0.01 (2012-10-21)
+* fixed bus conflict detection
+
+(2012-10-14)
+* initial release

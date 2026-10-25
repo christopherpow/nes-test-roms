@@ -1,0 +1,11 @@
+The font "pearl8x8" ultimately comes from the linux kernel distribution.
+
+All other files in this archive are released to the public domain, or
+ failing that, under the terms of the Creative Commons Zero license.
+
+The resultant .nes file uses knes, so may be under the same license as knes.
+
+knes: http://kkfos.aspekt.fi/projects/nes/libraries/knes-library-for-cc65/
+
+Creative Commons Zero: 
+ http://creativecommons.org/publicdomain/zero/1.0/legalcode-plain

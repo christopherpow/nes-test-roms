@@ -1,0 +1,229 @@
+#[1]   test_9.asm
+    7                             .inesprg 1 ; 1 PRG
+    8                             .ineschr 1 ; 1 CHR
+    9                             .inesmir 0 ; V-mirroring
+   10                             .inesmap 0 ; 0-map (NMAP)
+   11                     
+   12                     ; MEMORY MAP
+   13                     ;
+   14                     ; 0x0000 - 0x04FF - arrays (0x0000-0x00FF - zero page, 0x0100-0x01FF - stack, 0x0200-0x02FF - sprite memmory)
+   15                     ; 0x0500 - 0x07FF - variables
+   16                     ; 0x0800 - 0x1FFF - mirrors of 0x0000 - 0x07FF
+   17                     ; 0x2000 - 0x2007 - PPU registers
+   18                     ; 0x2008 - 0x3FFF - mirrors of 0x2000 - 0x2007
+   19                     ; 0x4000 - 0x401F - 2A03 (APU) registers
+   20                     ; 0x4020 - 0x5FFF - mapper registers (not used)
+   21                     ; 0x6000 - 0x7FFF - SRAM
+   22                     ; 0x8000 - 0xFFFF - PRG ROM
+   23                     
+   24                     ; VARIABLES AND ARRAYS
+   25                     
+   26           0100      stack = $0100 ; (size = 256)
+   27           0200      sprite_mem = $0200 ; (size = 256)
+   28           0500      nmi_hit = $0500 ; (size = 1)
+   29                     
+   30           0000              .bank 0
+   31           8000              .org $8000
+   32                     
+   33                     ; PRG ROM
+   34                     
+   35  00:8000            main:
+   36                     ; PPU is turned off
+   37                     ; setup palette
+   38  00:8000  A9 3F             lda #$3f
+   39  00:8002  8D 06 20          sta $2006
+   40  00:8005  A9 00             lda #0
+   41  00:8007  8D 06 20          sta $2006
+   42  00:800A  A9 0D             lda #13
+   43  00:800C  8D 07 20          sta $2007
+   44  00:800F  A9 20             lda #32
+   45  00:8011  8D 07 20          sta $2007
+   46  00:8014  A9 0E             lda #14
+   47  00:8016  8D 07 20          sta $2007
+   48  00:8019  A9 0E             lda #14
+   49  00:801B  8D 07 20          sta $2007
+   50                     ; clear attributes
+   51  00:801E  A9 23             lda #$23
+   52  00:8020  8D 06 20          sta $2006
+   53  00:8023  A9 C0             lda #$c0
+   54  00:8025  8D 06 20          sta $2006
+   55  00:8028  A2 40             ldx #64
+   56  00:802A  A9 00             lda #0
+   57  00:802C            main_loop0:
+   58  00:802C  8D 07 20          sta $2007
+   59  00:802F  CA                dex
+   60  00:8030  D0 FA             bne main_loop0
+   61  00:8032  A9 21             lda #$21
+   62  00:8034  8D 06 20          sta $2006
+   63  00:8037  A9 2A             lda #$2a
+   64  00:8039  8D 06 20          sta $2006
+   65                     
+   66                     ; TEST
+   67  00:803C  4C 00 81          jmp test
+   68                     
+   69           8100              .org $8100
+   70  00:8100            test:
+   71  00:8100  A9 80             lda #$80
+   72  00:8102  8D 17 40          sta $4017
+   73  00:8105  A9 00             lda #0
+   74  00:8107  8D 17 40          sta $4017
+   75  00:810A  A2 39             ldx #$39
+   76  00:810C  A0 18             ldy #$18
+   77  00:810E            loop:
+   78  00:810E  CA                dex
+   79  00:810F  D0 FD             bne loop
+   80  00:8111  88                dey
+   81  00:8112  D0 FA             bne loop
+   82  00:8114  EA                nop
+   83  00:8115  EA                nop
+   84  00:8116  AD 15 40          lda $4015
+   85  00:8119  D0 00             bne wait_1
+   86  00:811B            wait_1:
+   87  00:811B  A9 80             lda #$80
+   88  00:811D  8D 17 40          sta $4017
+   89  00:8120  A9 00             lda #0
+   90  00:8122  8D 02 40          sta $4002
+   91  00:8125  8D 03 40          sta $4003
+   92  00:8128  A9 01             lda #1
+   93  00:812A  8D 15 40          sta $4015
+   94  00:812D  A9 00             lda #0
+   95  00:812F  8D 03 40          sta $4003
+   96  00:8132  A9 80             lda #$80
+   97  00:8134  A2 07             ldx #7
+   98  00:8136            clear_lc_loop:
+   99  00:8136  8D 17 40          sta $4017
+  100  00:8139  CA                dex
+  101  00:813A  D0 FA             bne clear_lc_loop
+  102  00:813C  8D 17 40          sta $4017
+  103  00:813F  8E 17 40          stx $4017
+  104  00:8142  A2 38             ldx #$38
+  105  00:8144  A0 18             ldy #$18
+  106  00:8146            clear_loop:
+  107  00:8146  CA                dex
+  108  00:8147  D0 FD             bne clear_loop
+  109  00:8149  88                dey
+  110  00:814A  D0 FA             bne clear_loop
+  111  00:814C  F0 00             beq wait_2
+  112  00:814E            wait_2:
+  113  00:814E  EA                nop
+  114  00:814F  EA                nop
+  115  00:8150  8E 17 40          stx $4017
+  116  00:8153  EA                nop
+  117  00:8154  A2 FF             ldx #$ff
+  118  00:8156  AD 15 40          lda $4015
+  119  00:8159  29 01             and #1
+  120  00:815B  D0 0B             bne fail_loop
+  121  00:815D            pass_loop:
+  122  00:815D  E8                inx
+  123  00:815E  BD D3 81          lda test_success, x
+  124  00:8161  8D 07 20          sta $2007
+  125  00:8164  D0 F7             bne pass_loop
+  126  00:8166  F0 09             beq test_end
+  127  00:8168            fail_loop:
+  128  00:8168  E8                inx
+  129  00:8169  BD C7 81          lda test_error, x
+  130  00:816C  8D 07 20          sta $2007
+  131  00:816F  D0 F7             bne fail_loop
+  132                     
+  133  00:8171            test_end:
+  134  00:8171  20 9A 81          jsr vwait
+  135  00:8174  A9 0A             lda #%00001010
+  136  00:8176  8D 01 20          sta $2001
+  137  00:8179  B8                clv
+  138  00:817A            eloop:
+  139  00:817A  50 FE             bvc eloop
+  140                     
+  141                     ; clear scroll
+  142  00:817C            clear_scroll:
+  143  00:817C  A9 00             lda #0
+  144  00:817E  8D 06 20          sta $2006
+  145  00:8181  8D 06 20          sta $2006
+  146  00:8184  60                rts
+  147                     
+  148                     ; wait for vblank starts
+  149  00:8185            vwait_start:
+  150  00:8185  2C 02 20          bit $2002
+  151  00:8188            vwait_start_loop0:
+  152  00:8188  2C 02 20          bit $2002
+  153  00:818B  10 FB             bpl vwait_start_loop0
+  154  00:818D  60                rts
+  155                     
+  156                     ; wait for vblank ends and clear scroll
+  157  00:818E            vwait_end:
+  158  00:818E  20 94 81          jsr vwait_end_wc
+  159  00:8191  4C 7C 81          jmp clear_scroll
+  160                     
+  161                     ; wait for vblank ends
+  162  00:8194            vwait_end_wc:
+  163  00:8194  AD 02 20          lda $2002
+  164  00:8197  30 FB             bmi vwait_end_wc
+  165  00:8199  60                rts
+  166                     
+  167                     ; wait for a vblank
+  168  00:819A            vwait:
+  169  00:819A  20 A0 81          jsr vwait_wc
+  170  00:819D  4C 7C 81          jmp clear_scroll
+  171                     
+  172                     ; wait for a vblank (scroll not cleared)
+  173  00:81A0            vwait_wc:
+  174  00:81A0  20 85 81          jsr vwait_start
+  175  00:81A3  4C 94 81          jmp vwait_end_wc
+  176                     
+  177                     ; entry point
+  178  00:81A6            start:
+  179                     ; turn off PPU
+  180  00:81A6  A9 00             lda #0
+  181  00:81A8  8D 00 20          sta $2000
+  182  00:81AB  8D 01 20          sta $2001
+  183                     ; disable interrupts
+  184  00:81AE  78                sei
+  185                     ; reset stack pointer
+  186  00:81AF  AE FF 00          ldx $ff
+  187  00:81B2  9A                txs
+  188                     ; wait for two vblanks
+  189  00:81B3  20 A0 81          jsr vwait_wc
+  190  00:81B6  20 A0 81          jsr vwait_wc
+  191                     ; goto main
+  192  00:81B9  4C 00 80          jmp main
+  193                     
+  194                     ; non-maskable interrupt
+  195  00:81BC            nmi:
+  196                     ; save state
+  197  00:81BC  08                php
+  198  00:81BD  48                pha
+  199  00:81BE  A9 01             lda #1
+  200  00:81C0  8D 00 05          sta nmi_hit
+  201  00:81C3  68                pla
+  202  00:81C4  28                plp
+  203  00:81C5  40                rti
+  204                     
+  205                     ; ignore any irq
+  206  00:81C6            irq:
+  207  00:81C6  40                rti
+  208                     
+  209                     ; DATA
+  210                     
+  211  00:81C7            test_error:
+  212  00:81C7  54 45 53          .db "TEST FAILED",0
+       00:81CA  54 20 46  
+       00:81CD  41 49 4C  
+       00:81D0  45 44 00  
+  213  00:81D3            test_success:
+  214  00:81D3  54 45 53          .db "TEST PASSED",0
+       00:81D6  54 20 50  
+       00:81D9  41 53 53  
+       00:81DC  45 44 00  
+  215                     
+  216                     ; POINTERS
+  217                     
+  218           0001              .bank 1
+  219           FFFA              .org $FFFA
+  220  01:FFFA  BC 81             .dw nmi, start, irq
+       01:FFFC  A6 81     
+       01:FFFE  C6 81     
+  221                     
+  222                     ; CHR ROM
+  223                     
+  224           0002              .bank 2
+  225           0000              .org $0000
+  226  02:0000                    .incbin "rom.chr"

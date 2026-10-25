@@ -1,0 +1,16 @@
+obj/nes/index.txt
+src/global.inc
+src/nes.inc
+src/bg.s
+src/init.s
+src/main.s
+src/mmc3.s
+src/pads.s
+src/ppuclear.s
+tilesets/fizztertiny.png
+tilesets/mmc3logo.png
+tools/pilbmp2nes.py
+makefile
+mmc3bigchrram.nes
+tgrom512.cfg
+zip.in

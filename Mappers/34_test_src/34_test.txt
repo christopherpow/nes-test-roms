@@ -1,0 +1,20 @@
+34_test_1.nes
+expected results
+
+CHR RAM: NO
+PRG RAM: YES
+PRG BANKS: $2
+CHR BANKS $10
+SUBMAPPER: $1
+(NINA-001 exclusive)
+
+
+34_test_2.nes
+expected results
+
+CHR RAM: YES
+PRG RAM: YES
+PRG BANKS: $8
+CHR BANKS $1
+SUBMAPPER: $2
+(BNROM exclusive)

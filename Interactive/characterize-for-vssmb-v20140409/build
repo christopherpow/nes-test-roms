@@ -1,0 +1,3 @@
+echo -en `date +'%F %T' -u` UTC$ > assembletime
+~/src/cc65/bin/cl65 --verbose -t none --mapfile characterize-vs.map -Wl --dbgfile,characterize-vs.nes.dbg -g -o characterize-vs.nes -C nes-nrom.cfg --create-dep characterize-vs.d -Cl -Oris --listing characterize-vs.lst characterize-vs.asm
+dd if=characterize-vs.nes bs=16 skip=513 count=512 of=e000.bin

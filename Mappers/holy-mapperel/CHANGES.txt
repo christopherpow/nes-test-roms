@@ -1,0 +1,21 @@
+0.03 (future)
+* Port tools to Python 3.8 or later (collections.abc)
+
+0.02 (2017-10-16)
+* Rename to "Holy Mapperel" to avoid Warner Bros. trouble
+* Port tools to Python 3
+* Port asm and makefile to ca65 2.14 or later (requested by
+  infiniteneslives)
+* make_roms.py: Generate 2K, 8K, and 32K save files
+* README: List dits and dahs (requested by rainwarrior)
+* README: Clarify what's duplicated how often, why Morse crashes are
+  used, and why the end of a ROM can't just be cut off (requested
+  by rainwarrior)
+* Relicense from GNU All-Permissive to the equivalent (but more
+  widely recognized) zlib
+* Add Color Dreams mapper
+* Distinguish mappers 0 (NROM) and 3 (CNROM) from their superset
+  66 (GNROM), and 34 (BNROM) from 11 (Color Dreams)
+
+0.01 (2013-11-02)
+* Initial public release

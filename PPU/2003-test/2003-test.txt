@@ -1,0 +1,126 @@
+https://forums.nesdev.org/viewtopic.php?p=81425
+Post by thefox » 12 Jul 2011, 06:00
+
+The OAM address does get cleared *somewhere*, so it seems that the myth is a myth. I'm not sure if it's at the end of the scanline, or at the end of the frame, but here's a simple test I wrote:
+
+```
+#include <knes.h>
+
+#pragma bss-name(push, "ZEROPAGE")
+#pragma data-name(push, "ZEROPAGE")
+
+void hang(void)
+{
+    while ( 1 );
+}
+
+const char* text;
+void write_text(void)
+{
+    poll_vblank();
+    // Just to make sure the writes won't occur outside vblank...
+    PPU.mask = BGREND_OFF;
+    // Copy the text to $21C4.
+    PPU_ADDR( 0x21C4 );
+    while ( *text )
+    {
+        PPU.data = *text++;
+    }
+    // Hopefully we're still in vblank. :)
+    PPU_SCROLL( 0, 0 );
+    PPU.mask = BGREND_ON;
+}
+
+byte hexnum;
+void write_hexnum(void)
+{
+    static const char* hex_lut = "0123456789ABCDEF";
+    
+    poll_vblank();
+    // Just to make sure the writes won't occur outside vblank...
+    PPU.mask = BGREND_OFF;
+    // Copy the text to $21E4.
+    PPU_ADDR( 0x21E4 );
+    PPU.data = hex_lut[ hexnum >> 4  ];
+    PPU.data = hex_lut[ hexnum & 0xF ];
+    // Hopefully we're still in vblank. :)
+    PPU_SCROLL( 0, 0 );
+    PPU.mask = BGREND_ON;
+}
+
+void set_palette(void)
+{
+    // Palette is initially initialized to black by KNES.
+
+    poll_vblank();
+    
+    // Set the second palette color to white.
+    PPU_ADDR( PPU_BG_PALETTE + 1 );
+    PPU.data = 0x30; // White
+}
+
+void test1(void)
+{
+    // Test #1:
+    //   Test if $2003 is cleared at the end of the frame.
+    
+    // Disable rendering.
+    PPU.mask = 0;
+    
+    // Initialize the OAM to numbers 0-255.
+    {
+        byte i = 0;
+        byte *p = ( byte * )OAM;
+        do
+        {
+            *p++ = i;
+        }
+        while ( ++i != 0 );
+        poll_vblank();
+        OAM_DMA();
+    }
+    
+    // Set the OAM address.
+    poll_vblank();
+    PPU.oam_addr = 0x4;
+    
+    // Enable rendering.
+    PPU.mask = BGREND_ON;
+    
+    // Wait for the vblank (assuming the flag gets cleared during the frame).
+    poll_vblank();
+    
+    // If the hypothesis is true, $2003 should now be 0.
+    // We can determine the value by reading from OAM.
+    hexnum = PPU.oam_data; write_hexnum();
+    
+    text = "TEST 1 READY"; write_text();
+}
+
+int main(void)
+{
+    set_palette();
+    
+    text = "READY"; write_text();
+    
+    test1();
+    
+    // Wait for the judgement day.
+    hang();
+    
+    return 0;
+}
+```
+
+ROM: http://kkfos.aspekt.fi/downloads/2003-test.zip
+
+Correct output (based on my PAL NES) is:
+
+```
+TEST 1 READY
+00
+```
+
+Nintendulator prints "04", Nestopia prints "00" and FCEUX prints "88" (doesn't support OAM readback?)
+
+EDIT: Forgot to initialize "i" to 0 in the OAM init code, however this shouldn't change the behaviour because the reset code initializes the RAM.

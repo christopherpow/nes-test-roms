@@ -1,0 +1,55 @@
+mset_delay.nes
+Hyperkin Mouse read delay test, by Brad Smith 2019
+http://rainwarrior.ca
+
+
+Plug a Hyperkin mouse into the second controller port of your NES.
+Use a regular controller in the first port.
+
+Press Up/Down to adjust the read delay.
+Press A to cycle sensitivity.
+Press B to reset the current X/Y min/max.
+
+
+This is a read speed test of the Hyperkin mouse.
+Apparently it requires a small delay between the 2nd and 3rd bytes read.
+It also has a speed limit on each bit read.
+
+The delay between the two bytes (CPU cycle count) is adjustable by the controller.
+Below 25 cycles the reported X/Y values were chaotic.
+At 28 cycles or above they became completely stable.
+25-27 have occasional glitches.
+
+The bit read speed is fixed, but can be adjusted with MOUSE_BIT_DELAY in the source, and rebuilding.
+An unrolled minimum of 11 cycles (MOUSE_BIT_DELAY=0) resulted in chaotic reported values.
+At 14 cycles it became completely stable.
+12-13 have occasional glitches.
+
+The included ROMs are numbered by the cycles per bit read.
+
+
+Otherwise the output of this test is very similar to the mset.nes mouse test ROM.
+
+
+5 bytes are read each frame.
+A record of the last 24 frames is displayed on the left hand side.
+
+The top right displays the last report.
+The first and last bytes there are raised to indicate they are less important.
+(First byte should be 00, last byte is past the end of the report.)
+
+Just beneath this are two numbers, the first is the read delay (cycles), and the second is the current sensitivity.
+
+
+Below this are two numbers indicating the lowest and highest X displacement reported,
+followed by two more numbers indicating lowest and highest Y displacement reported.
+(Press B to reset the min/max.)
+
+In the middle is the current offset displayed visually with a circle over a cross.
+
+
+Source code requires CC65. (Place it in an adjacent cc65 folder, run build.bat.)
+https://cc65.github.io/
+
+build_runtime.bat is used to rebuild temp\runtime.lib (instructions are contained as comments)
+preprocessor.bat is used to diagnose preprocessor usage
